@@ -27,7 +27,7 @@ class Paramaters:
         self._img_height = img_height
         self._img_width = img_width
         
-    def get_batch(self):
+    def get_batch_size(self):
         """return batch size"""
         return self._batch_size
     
@@ -46,13 +46,13 @@ if __name__ == '__main__':
         def test_Pararmeters_default(self):
             """ test Parameter class defaults"""
             testParameters = Paramaters()
-            self.assertEqual(testParameters.get_batch(),32)
+            self.assertEqual(testParameters.get_batch_size(),32)
             self.assertEqual(testParameters.get_image_size(), [128, 128])
             
         def test_Parameters_costructor(self):
             """test Parameter class constructor"""
             testParameters = Paramaters(batch_size=64, img_height=256, img_width=256)
-            self.assertEqual(testParameters.get_batch(),64)
+            self.assertEqual(testParameters.get_batch_size(),64)
             self.assertEqual(testParameters.get_image_size(), [256, 256])
         
     unittest.main()
