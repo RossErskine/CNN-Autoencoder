@@ -20,15 +20,16 @@ import Parameters as para
 def train_imageGenerator():
     """ returns a training generator"""
     
-    filename = '/test_image/galaxy'
+    filename = './test_images'
     param = para.Paramaters()
         
-    datagen = ImageDataGenerator()
+    datagen = ImageDataGenerator(rescale=1./255)
 
     train_gen = datagen.flow_from_directory(
     filename,
-    target_size=(param.get_image_size),
-    batch_size=param.get_batch_size)
+    target_size=(param.get_image_size()),
+    batch_size=param.get_batch_size(),
+    class_mode='input')
     return train_gen
     
     
