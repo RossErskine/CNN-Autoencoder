@@ -4,6 +4,10 @@
 Parameters Class
 
 Paramaters Class holds pararmeters for model CNN_autoencoder
+
+Example:
+foo = Parameters(batch_size= int, img_height = int, img_width = int)
+
 defaults are:
     batch size = 32
     image height = 128
@@ -47,7 +51,7 @@ if __name__ == '__main__':
             """ test Parameter class defaults"""
             testParameters = Paramaters()
             self.assertEqual(testParameters.get_batch_size(),32)
-            self.assertEqual(testParameters.get_image_size(), [128, 128])
+            self.assertEqual(testParameters.get_image_size(), [128,128 ])
             
         def test_Parameters_costructor(self):
             """test Parameter class constructor"""
