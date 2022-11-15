@@ -21,16 +21,25 @@ def train_imageGenerator():
     """ returns a training generator"""
     
     filename = './test_images'
-    param = para.Paramaters()
+    param = para.Paramaters(img_height=192, img_width=192)
         
-    datagen = ImageDataGenerator(rescale=1./255)
+    traingen = ImageDataGenerator(rescale=1./255, validation_split=0.2)
 
-    train_gen = datagen.flow_from_directory(
+    train_gen = traingen.flow_from_directory(
     filename,
     target_size=(param.get_image_size()),
     batch_size=param.get_batch_size(),
-    class_mode='input')
-    return train_gen
+    class_mode='input',
+    )
+    
+    valgen = ImageDataGenerator(rescale=1./255, validation_split=0.2)
+    
+    val_gen = valgen.flow_from_directory(
+    filename,
+    target_size=(param.get_image_size()),
+    batch_size=param.get_batch_size(),
+    class_mode='input',)
+    return [train_gen, val_gen]
     
     
         
