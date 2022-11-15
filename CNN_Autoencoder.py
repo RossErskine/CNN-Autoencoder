@@ -15,38 +15,30 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, UpSampling2D
 
-
-class CNN_Autoencoder(tf.keras.Model):
-    def __init__(self, size = 128):
-        super().__init__()
-        
-        self._size = size
-        
-        self.encoder = tf.keras.Sequential()
-        self.encoder.add(Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=(self._size, self._size, 3)))
-        self.encoder.add(MaxPooling2D((2, 2), padding='same'))
-        self.encoder.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
-        self.encoder.add(MaxPooling2D((2, 2), padding='same'))
-        self.encoder.add(Conv2D(16, (3, 3), activation='relu', padding='same'))
-        self.encoder.add(MaxPooling2D((2, 2), padding='same'))
-        
-        self.decoder = tf.keras.Sequential()
-        self.decoder.add(Conv2D(16, (3, 3), activation='relu', padding='same',input_shape=(16, 16, 3)))
-        self.decoder.add(UpSampling2D((2, 2)))
-        self.decoder.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
-        self.decoder.add(UpSampling2D((2, 2)))
-        self.decoder.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
-        self.decoder.add(UpSampling2D((2, 2)))
-
-        self.decoder.add(Conv2D(3, (3, 3), activation='sigmoid', padding='same'))
-        self.decoder.build(input_shape=(16, 16))
-        
-    def call(self, X):
-        latent_X = self.encoder(X) # compress
-        decoded_X = self.decoder(latent_X) # unpack
-        
-        return decoded_X
-        
+SIZE = 128
+def CAE_model():
+    #Encoder
+    model = Sequential()
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=(SIZE, SIZE, 3)))
+    model.add(MaxPooling2D((2, 2), padding='same'))
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), padding='same'))
+    model.add(Conv2D(16, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), padding='same'))
+    
+    #Decoder
+    model.add(Conv2D(16, (3, 3), activation='relu', padding='same'))
+    model.add(UpSampling2D((2, 2)))
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
+    model.add(UpSampling2D((2, 2)))
+    model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
+    model.add(UpSampling2D((2, 2)))
+    
+    model.add(Conv2D(3, (3, 3), activation='sigmoid', padding='same'))
+    
+    model.compile(optimizer='adam', loss='mean_squared_error', metrics=['mse'])
+    
+    return model
 
 if __name__ == '__main__': 
     
@@ -62,8 +54,9 @@ if __name__ == '__main__':
         
         def test_constructor(self):
             """Test CNN Autoencoder constructor"""
-            CNNAE = CNN_Autoencoder()
-            CNNAE.compile(optimizer='adam', loss='mean_squared_error', metrics=['mse'])
+            CAE = CAE_model()
+            CAE.summary()
+            
             
             
     unittest.main()   
