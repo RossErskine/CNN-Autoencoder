@@ -15,23 +15,31 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, UpSampling2D
 
-SIZE = 128
+SIZE = 192
 def CAE_model():
     #Encoder
     model = Sequential()
-    model.add(Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=(SIZE, SIZE, 3)))
+    model.add(Conv2D(96, (3, 3), activation='relu', padding='same', input_shape=(SIZE, SIZE, 3)))
     model.add(MaxPooling2D((2, 2), padding='same'))
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(48, (3, 3), activation='relu', padding='same'))
     model.add(MaxPooling2D((2, 2), padding='same'))
-    model.add(Conv2D(16, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(24, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), padding='same'))
+    model.add(Conv2D(12, (3, 3), activation='relu', padding='same'))
+    model.add(MaxPooling2D((2, 2), padding='same'))
+    model.add(Conv2D(6, (3, 3), activation='relu', padding='same'))
     model.add(MaxPooling2D((2, 2), padding='same'))
     
     #Decoder
-    model.add(Conv2D(16, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(6, (3, 3), activation='relu', padding='same'))
     model.add(UpSampling2D((2, 2)))
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(12, (3, 3), activation='relu', padding='same'))
     model.add(UpSampling2D((2, 2)))
-    model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
+    model.add(Conv2D(24, (3, 3), activation='relu', padding='same'))
+    model.add(UpSampling2D((2, 2)))
+    model.add(Conv2D(48, (3, 3), activation='relu', padding='same'))
+    model.add(UpSampling2D((2, 2)))
+    model.add(Conv2D(96, (3, 3), activation='relu', padding='same'))
     model.add(UpSampling2D((2, 2)))
     
     model.add(Conv2D(3, (3, 3), activation='sigmoid', padding='same'))
