@@ -7,7 +7,8 @@
 The Sloan Digital Sky Survey (SDSS) is a international collaboration that has mappped up-to one-third of the night sky with over three million observations SDSS(2022) of Galaxies, Stars,and Quasars with multi-colour imagary, over the last 20 years. With the next phase SDSS-V on the horizon with the next data release in December 2022, researchers will want to exlore more and more data. The discovery of outliers proposes new opportunities in exploring unknown phenomena and can produce some of the weirdest Galaxies in the universe Baraon, and Poznanski.(2016) helping us understand more and more about what can possibly be out there. Convolutional Neural Network (CNN) using the autoencoder architecture are generally used as a  dimensionality reduction technique or feature learning although can also be used as a nusupervised method that can be trained to encode input features into smaller dimensional space and then reconstruct the features in a reduced dimensioanl space alowing us to measure discrepencies from the original and identify outliers. 
 
 ## UML
-![CNN_Autoencoder drawio](https://user-images.githubusercontent.com/46631932/202480661-f266905d-7861-4128-b837-00d2069e492d.png)
+
+![CNN_Autoencoder drawio](https://user-images.githubusercontent.com/46631932/203310551-70d206a5-c572-4577-913c-07f17d46167b.png)
 
 
 ## Timeline
