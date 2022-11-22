@@ -24,7 +24,7 @@ import Parameters as para
 def train_dataLoader(filename = './test_images'):
     """ returns a training generator"""
     
-    #filename = './test_images'
+    filename = './test_images'
     #filename = '../datasets'
     param = para.Paramaters()
         
