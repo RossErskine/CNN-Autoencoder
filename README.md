@@ -1,5 +1,5 @@
 # CNN-Autoencoder-for-outlier-detection-on-SDSS-galaxy-images
-### Project title: [CNN autoencoder to dectect outliers on Sloan Digital Sky Survey galaxy images ]
+### Project title: [Convoluional-autoencoder to dectect outliers on Sloan Digital Sky Survey galaxy images ]
 
 ### Student name: [Ross Erskine]
 
@@ -10,32 +10,21 @@ The Sloan Digital Sky Survey (SDSS) is a international collaboration that has ma
 ![CNN_Autoencoder drawio](https://user-images.githubusercontent.com/46631932/202480661-f266905d-7861-4128-b837-00d2069e492d.png)
 
 
-
-
 ## Timeline
 The project will be split into three sections over the course of an 8 week period: 
-## Representation: 
-Week 1 (26 oct - 2 Nov):
-  - [x] Data Aquisition: Fits file from SciServer,
-  - [x] data-analysis: *numpy, pandas, matplotlib, astropy*, 
 
+Week 1 (26 oct - 2 Nov):
+  - [x] Data Aquisition:,
 
 Week 2 (2 Nov - 9 Nov):
-  - [ ] Normalisation: 
-  - [ ] ML CNN model architecture: layers of CNN and auto-encoding 
-    - Layers to be confirmed 
+  - [x] Parameters Class: 
+  - [x] Data loader:
    
-  
-## Optimisation
 Week 3 (9 Nov - 16 Nov):
-  - [ ] Hyper-paramater tuning using training and validation set
-  - [ ] denoising 
-  - [ ] Presentation Prep
-
+  - [ ] CAE layers
 
 Week 4 (16 Nov - 23 Nov):
   - [ ] Training 
-## Evaluation: 
 Week 5 (23 Nov - 30 Nov):
   - [ ] final evaluation using the hold-out test set of the models unseen  
   - [ ] MSE
