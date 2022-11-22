@@ -28,8 +28,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 params = pr.Paramaters() # Construct Paramaters
 MSE_los = torch.nn.MSELoss()
 lr = 0.001
-
-train_loader, val_loader = ig.train_dataLoader()
+filename = '../datasets'
+train_loader, val_loader = ig.train_dataLoader(filename)
 
 encoder = Encoder()
 decoder = Decoder()
