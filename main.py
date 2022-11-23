@@ -25,10 +25,11 @@ import CNN_Autoencoder as CAE
 ############################## Constructors ##################################
 params = pr.Paramaters() # Construct Paramaters
 
+test_images = ig.get_test_set()
+#filename = '../datasets'
 traingen, valgen = ig.train_dataLoader()  # Construct ImageGenerator
 
 loss_fn = torch.nn.MSELoss()
-
 
 model = CAE.Convolutional_Autoencoder()     # Construct model
 
@@ -47,12 +48,15 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 
 ########################### Train function ########################################
 def train_model(model, dataloader, device, loss_fn, optimizer):
+    """ Train model using dataloader return the mean training loss """
     
+    #model.train()
     train_loss = []
     for (img, _) in traingen:
         # move tensor to device
         #mg = img.to(device)
-        # 
+        
+        #Reconstruction error
         recon = model(img)
         loss = loss_fn(recon, img)
         
@@ -65,18 +69,22 @@ def train_model(model, dataloader, device, loss_fn, optimizer):
     
     return np.mean(train_loss)
 
+##################### Validation function ###########################
+
+
+    
+
 ########################### plot function ########################################
-def plot_ae_outputs(encoder,decoder,n=10):
+def plot_outputs(model,n=10):
+    """Plots after every epoch"""
     plt.figure(figsize=(16,4.5))
-    targets = test_dataset.targets.numpy()
-    t_idx = {i:np.where(targets==i)[0][0] for i in range(n)}
+    
     for i in range(n):
       ax = plt.subplot(2,n,i+1)
-      img = test_dataset[t_idx[i]][0].unsqueeze(0).to(device)
-      encoder.eval()
-      decoder.eval()
+      img = test_images[i][0].unsqueeze(0)#.to(device)
+      model.eval()
       with torch.no_grad():
-         rec_img  = decoder(encoder(img))
+         rec_img  = model.forward(img)
       plt.imshow(img.cpu().squeeze().numpy(), cmap='gist_gray')
       ax.get_xaxis().set_visible(False)
       ax.get_yaxis().set_visible(False)  
@@ -92,12 +100,10 @@ def plot_ae_outputs(encoder,decoder,n=10):
 
 ########################### Train and evaluate ########################################
 num_epochs = 30
-diz_loss = {'train_loss':[],'val_loss':[]}
+diz_loss = {'train_loss':[]}
 for epoch in range(num_epochs):
-   train_loss =train_model(model,device,
-   traingen,loss_fn,optimizer)
-   #val_loss = test_epoch(encoder,decoder,device,test_loader,loss_fn)
+   train_loss =train_model(model,device, traingen,loss_fn,optimizer)
+   
    print('\n EPOCH {}/{} \t train loss {}'.format(epoch + 1, num_epochs,train_loss))
    diz_loss['train_loss'].append(train_loss)
-   #diz_loss['val_loss'].append(val_loss)
-   #plot_ae_outputs(model,n=10)
+   plot_outputs(model,n=10)
