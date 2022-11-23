@@ -24,7 +24,7 @@ import Parameters as para
 def train_dataLoader(filename = './test_images'):
     """ returns a training generator"""
     
-    filename = './test_images'
+    #filename = './test_images'
     #filename = '../datasets'
     param = para.Paramaters()
         
@@ -42,8 +42,13 @@ def train_dataLoader(filename = './test_images'):
     return [train_loader, val_loader]
     
     
-        
-    
+def get_test_set():
+    """reurns a test set of images rather than a dataloader"""
+    filename = './test_images'
+    test_set= torchvision.datasets.ImageFolder(filename)
+    data_transform = transforms.Compose([transforms.ToTensor(),transforms.Resize([128,128])])
+    test_set.transform = data_transform
+    return test_set
     
     
     
@@ -61,15 +66,11 @@ if __name__ == '__main__':
             filename = './test_images'
             msg = "File path is not True"
             self.assertTrue(os.path.exists(filename), msg)
-        """ 
-        def test_randomSplit(self):
             
-            train_loader, val_loader = train_dataLoader()
-            msg1 = 'train loader len is incorrect!'
-            msg2 = 'val_loader len is incorrect!'
-            self.assertEqual(len(train_data), 89, msg1)
-            self.assertEqual(len(val_data), 23, msg2)
-             """   
+        def Test_dataloader_constructor(self):
+            """Test dataloader constructor """
+            data_loader= train_dataLoader()
+            
         
             
     unittest.main()
