@@ -26,7 +26,7 @@ import CNN_Autoencoder as CAE
 params = pr.Paramaters(batch_size=512) # Construct Paramaters
 
 test_images = ig.get_test_set()
-filename = '../datasets'
+filename = '../small_datasets'
 traingen, valgen = ig.train_dataLoader(filename)  # Construct ImageGenerator
 
 loss_fn = torch.nn.MSELoss()
@@ -109,7 +109,7 @@ def plot_outputs(model):
         ax.set_title("Original images")  
 
 ########################### Train and evaluate ########################################
-n_of_iters = 100
+n_of_iters = 10
 num_epochs = 30
 diz_loss = {'train_loss':[]}
 for i in range(n_of_iters):
