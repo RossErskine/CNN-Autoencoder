@@ -25,31 +25,31 @@ class Convolutional_Autoencoder(nn.Module):
         # Encoder layers
         # N, 3, 128, 128
         self.encoder = nn.Sequential(                       
-            nn.Conv2d(3, 16, 3, stride=2, padding=1),    # -> N, 16, 64, 64
+            nn.Conv2d(3, 32, 3, stride=2, padding=1),    # -> N, 32, 64, 64
             nn.ReLU(True),
                                              
-            nn.Conv2d(16 ,32, 3, stride=2, padding=1 ),  # -> N, 32, 32, 32
+            nn.Conv2d(32 ,16, 3, stride=2, padding=1 ),  # -> N, 16, 32, 32
             nn.ReLU(True),
             
-            nn.Conv2d(32 ,64, 3, stride=2, padding=1 ),  # -> N, 64, 16, 16
+            nn.Conv2d(16 ,8, 3, stride=2, padding=1 ),  # -> N, 8, 16, 16
             nn.ReLU(True),
        
-            nn.Conv2d(64, 128, 3, stride=2, padding=1)   # -> N, 128, 8, 8
+            nn.Conv2d(8, 4, 3, stride=2, padding=1)   # -> N, 4, 8, 8
         )
         
         # Encoder layers
-        # N, 128, 8, 8
+        # N, 4, 8, 8
         self.decoder = nn.Sequential(  
-            nn.ConvTranspose2d(128, 64, 3, stride=2, padding=1, output_padding=1), # -> N, 64, 16, 16
+            nn.ConvTranspose2d(4, 8, 3, stride=2, padding=1, output_padding=1), # -> N, 8, 16, 16
             nn.ReLU(True),
             
-            nn.ConvTranspose2d(64, 32, 3, stride=2, padding=1, output_padding=1), # -> N, 32, 32, 32
+            nn.ConvTranspose2d(8, 16, 3, stride=2, padding=1, output_padding=1), # -> N, 16, 32, 32
             nn.ReLU(True),
             
-            nn.ConvTranspose2d(32, 16, 3, stride=2, padding=1, output_padding=1), # -> N, 32, 64, 64
+            nn.ConvTranspose2d(16, 32, 3, stride=2, padding=1, output_padding=1), # -> N, 32, 64, 64
             nn.ReLU(True),
             
-            nn.ConvTranspose2d(16, 3, 3, stride=2, padding=1, output_padding=1), # -> N, 3, 128, 128
+            nn.ConvTranspose2d(32, 3, 3, stride=2, padding=1, output_padding=1), # -> N, 3, 128, 128
             nn.Sigmoid()
         )
         
@@ -58,6 +58,10 @@ class Convolutional_Autoencoder(nn.Module):
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
         return decoded
+    
+    def get_encoded(self, x):
+        encoded = self.encoder(x)
+        return encoded
 
 
 
@@ -77,6 +81,12 @@ if __name__ == '__main__':
             """Test CNN Autoencoder constructor"""
             CAE = Convolutional_Autoencoder()
             print(CAE)
+            
+        def test_get_ecoder(self):
+            """Test Get encoder function """
+            model = Convolutional_Autoencoder()
+            encoder = model.get_encoder()
+            print(encoder)
             
             
             
