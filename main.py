@@ -16,7 +16,10 @@ import random
 import torch
 import torch.nn as nn
 import numpy as np
+import pandas as pd
 from PIL import Image
+from tqdm import tqdm
+from math import log
 
 # import modules
 import Parameters as pr
@@ -94,20 +97,19 @@ def plot_outputs(encoder, decoder):
         ax.set_title("Original images")  
 
 ########################### Train and evaluate ########################################
-n_of_iters = 5
-num_epochs = 5
+
+num_epochs = 25
 diz_loss = {'train_loss':[], 'val_loss': []}
-for i in range(n_of_iters):
-    for epoch in range(num_epochs):
-       train_loss =train_model(encoder, decoder, traingen,device,loss_fn,optimizer)
-       val_loss = val_model(encoder, decoder, valgen,device,loss_fn)
-       print('\n EPOCH {}/{} \t train loss {} \t val loss {}'.format(epoch + 1, num_epochs,train_loss,val_loss))
-       diz_loss['train_loss'].append(train_loss)
-       diz_loss['val_loss'].append(val_loss)
-    plot_outputs(encoder, decoder)
+
+for epoch in range(num_epochs):
+   train_loss = train_model(encoder, decoder, traingen,device,loss_fn,optimizer)
+   val_loss = val_model(encoder, decoder, valgen,device,loss_fn)
+   print('\n EPOCH {}/{} \t train loss {} \t val loss {}'.format(epoch + 1, num_epochs,train_loss,val_loss))
+   diz_loss['train_loss'].append(train_loss)
+   diz_loss['val_loss'].append(val_loss)
+plot_outputs(encoder, decoder)
     
 #plot the training and loss at each epoch
-## TODO... Plot using logarithmic loss for better loss analysis
 
 plt.figure(figsize=(10,8))
 plt.semilogy(diz_loss['train_loss'], label='Train')
@@ -116,7 +118,7 @@ plt.xlabel('Epoch')
 plt.ylabel('Average Loss')
 #plt.grid()
 plt.legend()
-#plt.title('loss')
+plt.title('Training loss')
 plt.show()
 
 ######################### Save/ load Model ###################################
@@ -127,6 +129,8 @@ plt.show()
 
 from sklearn.neighbors import KernelDensity
 
+
+"""
 #Get encoded output of input images = Latent space
 encoded_images = encoder(traingen)
 
@@ -135,9 +139,27 @@ encoder_output_shape = encoder.output_shape #Here, we have 8x8x8
 out_vector_shape = encoder_output_shape[1]*encoder_output_shape[2]*encoder_output_shape[3]
 
 encoded_images_vector = [np.reshape(img, (out_vector_shape)) for img in encoded_images]
+"""
+encoded_samples = []
+for sample in tqdm(traingen):
+    img = sample[0]
+    label = sample[1]
+    # Encode image
+    encoder.eval()
+    with torch.no_grad():
+        encoded_img  = encoder(img)
+    # Append to list
+    encoded_img = encoded_img.flatten().cpu().numpy()
+    encoded_sample = {f"Enc. Variable {i}": enc for i, enc in enumerate(encoded_img)}
+    #encoded_sample['label'] = label
+    encoded_samples.append(encoded_sample)
+encoded_samples = pd.DataFrame(encoded_samples)
+encoded_samples
+
+
 
 #Fit KDE to the image latent data
-kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(encoded_images_vector)
+kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(encoded_samples)
 
 #Calculate density and reconstruction error to find their means values for
 #good and anomaly images. 
@@ -146,15 +168,15 @@ def calc_density_and_recon_error(batch_images):
     
     density_list=[]
     recon_error_list=[]
-    for im in range(0, batch_images.shape[0]-1):
+    for im in range(0, train_batch[1].size(dim=0)-1):
         
         img  = batch_images[im]
         img = img[np.newaxis, :,:,:]
-        encoded_img = encoder.predict([[img]]) # Create a compressed version of the image using the encoder
-        encoded_img = [np.reshape(img, (out_vector_shape)) for img in encoded_img] # Flatten the compressed image
+        encoded_img = encoder(img) # Create a compressed version of the image using the encoder
+        encoded_img = [np.reshape(img, (4,8,8)) for img in encoded_img] # Flatten the compressed image
         density = kde.score_samples(encoded_img)[0] # get a density score for the new image
-        reconstruction = decoder.predict([[img]])
-        reconstruction_error = decoder.evaluate([reconstruction],[[img]], batch_size = 1)[0]
+        reconstruction = decoder([[img]])
+        reconstruction_error = loss_fn(reconstruction, img)
         density_list.append(density)
         recon_error_list.append(reconstruction_error)
         
@@ -168,11 +190,11 @@ def calc_density_and_recon_error(batch_images):
 
 #Get average and std dev. of density and recon. error for uninfected and anomaly (parasited) images. 
 #For this let us generate a batch of images for each. 
-train_batch = traingen.next()[0]
-#anomaly_batch = anomaly_generator.next()[0]
+train_batch = next(iter(traingen))
 
-uninfected_values = calc_density_and_recon_error(train_batch)
-#anomaly_values = calc_density_and_recon_error(anomaly_batch)
+
+pdf = calc_density_and_recon_error(train_batch)
+
 
 ######################### Outlier detection ###################################
 
@@ -186,7 +208,7 @@ def check_anomaly(test_images):
     img = img / 255.
     img = img[np.newaxis, :,:,:]
     encoded_img = encoder.predict([[img]]) 
-    encoded_img = [np.reshape(img, (out_vector_shape)) for img in encoded_img] 
+    encoded_img = [np.reshape(img, (4,8,8)) for img in encoded_img] 
     density = kde.score_samples(encoded_img)[0] 
 
     reconstruction = decoder.predict([[img]])
