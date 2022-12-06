@@ -32,7 +32,7 @@ from training import train_model, val_model
 params = pr.Paramaters(batch_size=512) # Construct Paramaters
 
 test_images = ig.get_test_set()
-filename = '../small_datasets'
+filename = '../training'
 traingen, valgen = ig.train_dataLoader(filename)  # Construct ImageGenerator
 
 loss_fn = torch.nn.MSELoss()
