@@ -14,19 +14,14 @@ from tqdm import tqdm
 def encode_samples(encoder, dataloader):
     """ Encodes Samples """
     
-    encoded_samples = []
-    for sample in tqdm(dataloader):
-        img = sample[0]
-        #label = sample[1]
-        # Encode image
-        encoder.eval()
-        with torch.no_grad():
-            encoded_img  = encoder(img)
+    encoded_batches = []
+    for batch, _ in tqdm(dataloader):
+        
+        encoded_batch = encoder(batch)
+        encoded_batch = [img.detach().flatten().numpy() for img in encoded_batch]
+        
         # Append to list
-        encoded_img = encoded_img.flatten().cpu().numpy()
-        encoded_sample = {f"Enc. Variable {i}": enc for i, enc in enumerate(encoded_img)}
-        #encoded_sample['label'] = label
-        encoded_samples.append(encoded_sample)
-    encoded_samples = pd.DataFrame(encoded_samples)
-    encoded_samples = encoded_samples.dropna()
-    return encoded_samples
+        encoded_batches.append(encoded_batch)
+    encoded_batches = pd.DataFrame(encoded_batch)
+    encoded_batches = encoded_batches.dropna()
+    return encoded_batches
