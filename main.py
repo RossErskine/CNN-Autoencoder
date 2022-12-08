@@ -12,20 +12,22 @@ Source: https://medium.com/dataseries/convolutional-autoencoder-in-pytorch-on-mn
 
 
 import matplotlib.pyplot as plt
-import random
+
 import torch
-import torch.nn as nn
+from sklearn.neighbors import KernelDensity
 import numpy as np
 import pandas as pd
 from PIL import Image
-from tqdm import tqdm
-from math import log
+
+
 
 # import modules
 import Parameters as pr
 import ImageGenerator as ig
 import CNN_Autoencoder as CAE
 from training import train_model, val_model
+from encode_samples import encode_samples
+from density_n_recon_error import calc_density_and_recon_error
 #import Kernel_density_estimate as KDE
 
 ############################## Constructors ##################################
@@ -122,79 +124,32 @@ plt.title('Training loss')
 plt.show()
 
 ######################### Save/ load Model ###################################
-#torch.save(model.state_dict())
-
-    
+"""
+# Specify a path
+PATH = "entire_model.pt"
+# Save
+torch.save(model, PATH)
+ 
+# Load
+model = torch.load(PATH)
+model.eval()
+ """   
 ########################### KDE ########################################
+train_batch = next(iter(traingen))
+encoded_df = encode_samples(encoder, traingen)
+encoded_samples = encoded_df.to_numpy()
 
-from sklearn.neighbors import KernelDensity
-
-
-"""
-#Get encoded output of input images = Latent space
-encoded_images = encoder(traingen)
-
-# Flatten the encoder output because KDE from sklearn takes 1D vectors as input
-encoder_output_shape = encoder.output_shape #Here, we have 8x8x8
-out_vector_shape = encoder_output_shape[1]*encoder_output_shape[2]*encoder_output_shape[3]
-
-encoded_images_vector = [np.reshape(img, (out_vector_shape)) for img in encoded_images]
-"""
-encoded_samples = []
-for sample in tqdm(traingen):
-    img = sample[0]
-    label = sample[1]
-    # Encode image
-    encoder.eval()
-    with torch.no_grad():
-        encoded_img  = encoder(img)
-    # Append to list
-    encoded_img = encoded_img.flatten().cpu().numpy()
-    encoded_sample = {f"Enc. Variable {i}": enc for i, enc in enumerate(encoded_img)}
-    #encoded_sample['label'] = label
-    encoded_samples.append(encoded_sample)
-encoded_samples = pd.DataFrame(encoded_samples)
-encoded_samples
-
-
+#encoded_img_vector = [np.reshape(img, (256)) for img in encoded_samples]
 
 #Fit KDE to the image latent data
 kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(encoded_samples)
 
-#Calculate density and reconstruction error to find their means values for
-#good and anomaly images. 
-#We use these mean and sigma to set thresholds. 
-def calc_density_and_recon_error(batch_images):
-    
-    density_list=[]
-    recon_error_list=[]
-    for im in range(0, train_batch[1].size(dim=0)-1):
-        
-        img  = batch_images[im]
-        img = img[np.newaxis, :,:,:]
-        encoded_img = encoder(img) # Create a compressed version of the image using the encoder
-        encoded_img = [np.reshape(img, (4,8,8)) for img in encoded_img] # Flatten the compressed image
-        density = kde.score_samples(encoded_img)[0] # get a density score for the new image
-        reconstruction = decoder([[img]])
-        reconstruction_error = loss_fn(reconstruction, img)
-        density_list.append(density)
-        recon_error_list.append(reconstruction_error)
-        
-    average_density = np.mean(np.array(density_list))  
-    stdev_density = np.std(np.array(density_list)) 
-    
-    average_recon_error = np.mean(np.array(recon_error_list))  
-    stdev_recon_error = np.std(np.array(recon_error_list)) 
-    
-    return average_density, stdev_density, average_recon_error, stdev_recon_error
-
 #Get average and std dev. of density and recon. error for uninfected and anomaly (parasited) images. 
 #For this let us generate a batch of images for each. 
-train_batch = next(iter(traingen))
+sample_batch = next(iter(valgen))
 
 
-pdf = calc_density_and_recon_error(train_batch)
-
+batch_pdf = calc_density_and_recon_error(encoder, decoder, train_batch, kde, loss_fn)
 
 ######################### Outlier detection ###################################
 
@@ -219,4 +174,11 @@ def check_anomaly(test_images):
         
     else:
         print("The image is NOT an anomaly")
+        
+        
+########################## Plot final scatter ###############################   
+## TODO with anomolay     
+fig, ax = plt.subplots(figsize=(8,8))
+ax.scatter(encoded_df[0], encoded_df[1])
+plt.show()        
         
