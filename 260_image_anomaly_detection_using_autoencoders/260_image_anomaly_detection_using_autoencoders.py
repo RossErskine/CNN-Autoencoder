@@ -171,8 +171,10 @@ def calc_density_and_recon_error(batch_images):
         
         img  = batch_images[im]
         img = img[np.newaxis, :,:,:]
+        
         encoded_img = encoder_model.predict([[img]]) # Create a compressed version of the image using the encoder
         encoded_img = [np.reshape(img, (out_vector_shape)) for img in encoded_img] # Flatten the compressed image
+        
         density = kde.score_samples(encoded_img)[0] # get a density score for the new image
         reconstruction = model.predict([[img]])
         reconstruction_error = model.evaluate([reconstruction],[[img]], batch_size = 1)[0]
