@@ -2,27 +2,45 @@
 # -*- coding: utf-8 -*-
 """
 Training funtions
-
+two functions for training:
+    train_model updates the weights returns mean training loss every epoch
+    arguments:
+        encoder: Encoder class CNN_Autoencoder.py
+        decoder: Decoder class CNN_Autoencoder.py
+        dataloader: ImageGenerator.py
+        device: i.e. 'CPU or GPU'
+        loss_fn: i.e. Mean sqaured error
+        Optimiser: i.e. adam
+        
+    val_model returns mean generalaisation error every epoch
+    arguments:
+        encoder: Encoder class CNN_Autoencoder.py
+        decoder: Decoder class CNN_Autoencoder.py
+        dataloader: ImageGenerator.py
+        device: i.e. 'CPU or GPU'
+        loss_fn: i.e. Mean sqaured error
 
 Created on Mon Dec  5 14:09:51 2022
+last commited: 13/12/22
 
 @author: Ross Erskine ppxre1
 """
-################################ Imports ##############################
+
 import numpy as np
 import torch
+
 ########################### Train function ###################################
 def train_model(encoder, decoder, dataloader, device, loss_fn, optimizer):
     """ Train model using dataloader return the mean training loss """
     
     # Set evaluation mode for encoder and decoder
-    encoder.eval()
-    decoder.eval()
+    encoder.train()
+    decoder.train()
     
-    #model.train()
     train_loss = []
     for (img, _) in dataloader:
         # move tensor to device
+        # NOT WORKING!
         #img = img.to(device)
         
         #Reconstruction error
@@ -50,6 +68,7 @@ def val_model(encoder, decoder,  dataloader, device,loss_fn):
         val_loss = []
         for (img, _) in dataloader:
             # Move tensor to the proper device
+            # NOT WORKING!
             #image_batch = image_batch.to(device)
             
             #Reconstruction error
@@ -59,5 +78,4 @@ def val_model(encoder, decoder,  dataloader, device,loss_fn):
             
         val_loss.append(loss.detach().cpu().numpy())
             
-        
     return np.mean(val_loss)
