@@ -2,75 +2,52 @@
 # -*- coding: utf-8 -*-
 """
 Image generator
+WARNING: NEED Parameter.py class
+retruns training dataloader and validation dataloader
+Example:
+    parameters = Parameters()
+    train_generator, validation_generator = train_dataloader(filename, parameters)
 
+creates a torchvision Dataloader
+Splits data ratio 8:2
+Transforms data 128x128
 
 
 Created on: Mon Nov 14 11:07:20 2022
-Tested: TODO
-Last Commited: 
 
+Last Commited: 13/12/22
 
 @author: Ross Erskine (ppxre1)
 """
 
-import torch.utils.data as data
+
 import torchvision
 from torchvision import transforms
 from torch.utils.data import DataLoader,random_split
+import unittest
 import os
-# from PIL import Image
 import Parameters as para
 
-def train_dataLoader(filename = './test_images'):
+def train_dataLoader(filename = './test_images', param=para.Paramaters()):
     """ returns a training generator"""
+    if os.path.exists(filename)==True:
+        print('file not found!')
     
-    #filename = './test_images'
-    #filename = '../datasets'
-    param = para.Paramaters()
-        
-    dataset= torchvision.datasets.ImageFolder(filename)
-    data_transform = transforms.Compose([transforms.ToTensor(),transforms.Resize([128,128])])
-    dataset.transform = data_transform
-    m=len(dataset)
+    dataset= torchvision.datasets.ImageFolder(filename)# gets dtaset
+    data_transform = transforms.Compose([transforms.ToTensor(),
+                                         transforms.Resize(param.get_image_size())]) 
+    dataset.transform = data_transform # transforms images using above data_transform
+    m=len(dataset)# dataset size
     
-    train_set_size = int(m*0.8)
-    train_data, val_data = random_split(dataset, [train_set_size, int(m-train_set_size)])
+    train_set_size = int(m*0.8) # ratio 8:2
+    train_data, val_data = random_split(dataset, [train_set_size, int(m-train_set_size)])#splits data
     
-    train_loader = DataLoader(train_data, batch_size=param.get_batch_size())
+    train_loader = DataLoader(train_data, batch_size=param.get_batch_size()) #creates dataloaders
     val_loader = DataLoader(val_data, batch_size=param.get_batch_size())
     
     return [train_loader, val_loader]
+   
     
+if __name__ == '__main__':
     
-def get_test_set():
-    """reurns a test set of images rather than a dataloader"""
-    filename = './test_images'
-    test_set= torchvision.datasets.ImageFolder(filename)
-    data_transform = transforms.Compose([transforms.ToTensor(),transforms.Resize([128,128])])
-    test_set.transform = data_transform
-    return test_set
-    
-    
-    
-if __name__ == '__main__': 
-    
-########################## Testing ##########################################
-
-    import unittest
-    
-    class TestImageGenerator(unittest.TestCase):
-        """ Test ImageGenerator class """
-        
-        def testFilePath(self):
-            """Test file path"""
-            filename = './test_images'
-            msg = "File path is not True"
-            self.assertTrue(os.path.exists(filename), msg)
-            
-        def Test_dataloader_constructor(self):
-            """Test dataloader constructor """
-            data_loader= train_dataLoader()
-            
-        
-            
-    unittest.main()
+        unittest.main()
