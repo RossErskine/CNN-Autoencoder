@@ -12,7 +12,6 @@ Created on Tue Dec 13 19:42:50 2022
 import unittest
 import os
 
-    
 class TestImageGenerator(unittest.TestCase):
     """ Test ImageGenerator class """
     
@@ -21,3 +20,7 @@ class TestImageGenerator(unittest.TestCase):
         filename = './test_images'
         msg = "File path is not True"
         self.assertTrue(os.path.exists(filename), msg)
+        
+if __name__ == '__main__': 
+          
+    unittest.main()

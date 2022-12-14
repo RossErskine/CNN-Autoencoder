@@ -24,13 +24,12 @@ Last Commited: 13/12/22
 import torchvision
 from torchvision import transforms
 from torch.utils.data import DataLoader,random_split
-import unittest
 import os
 import Parameters as para
 
 def train_dataLoader(filename = './test_images', param=para.Paramaters()):
-    """ returns a training generator"""
-    if os.path.exists(filename)==True:
+    """ returns a pytorch data loader"""
+    if os.path.exists(filename)==False:
         print('file not found!')
     
     dataset= torchvision.datasets.ImageFolder(filename)# gets dtaset
@@ -48,6 +47,3 @@ def train_dataLoader(filename = './test_images', param=para.Paramaters()):
     return [train_loader, val_loader]
    
     
-if __name__ == '__main__':
-    
-        unittest.main()

@@ -17,7 +17,7 @@ import shutil
 
 def create_training_data(source= '../datasets/galaxy_images',
                          destination = '../datasets/galaxy_training_imgs'):
-    """Moves a specified amount of objects from on file to another"""
+    """Moves a specified amount of objects from one file to another"""
     
     allfiles = os.listdir(source)
     
@@ -27,5 +27,5 @@ def create_training_data(source= '../datasets/galaxy_images',
         shutil.move(src_path, dst_path)
      
 
-        
+     
         

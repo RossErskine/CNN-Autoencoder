@@ -3,22 +3,51 @@
 """
 Created on Mon Nov 14 09:31:36 2022
 
-Main is the interface for which the project CNN Autoencoder will start
+Main is the interface for which the project CNN Autoencoder will run. 
+Example: 
+    runfile('main.py')
+    
+    
+Sections:
+    Imports:
+        Libraries and modules
+    Constructors:
+        Parameter class, dataloader
+    GPU check:
+        check if GPU device is working
+    Plot Images function:
+        Plots the images from training on the last epoch of images before 
+        and after being passed through CAE
+    Train and evalute:
+        train and validate the model using functions:
+            train_model()
+            val_model()
+    Save and load model:
+        save model
+    KDE:
+        Creates the PDF from the kernel density function KDE
+    Outlier detection:
+        checks for outliers from a a batch of validation data
+    Final scatter:
+        Plots validation batch data
+    
+
 
 Source: https://medium.com/dataseries/convolutional-autoencoder-in-pytorch-on-mnist-dataset-d65145c132ac
+        https://towardsdatascience.com/introduction-to-autoencoders-b6fc3141f072
+        https://github.com/bnsreenu/python_for_microscopists/tree/master/260_image_anomaly_detection_using_autoencoders
+        https://github.com/patrickloeber/pytorch-examples
+        
+        
 
-@author: Ross Erskine
+@author: Ross Erskine ppxre1
 """
-
+####################### Imports ############################################
 
 import matplotlib.pyplot as plt
-
 import torch
 from sklearn.neighbors import KernelDensity
 import numpy as np
-import pandas as pd
-from PIL import Image
-
 
 
 # import modules
@@ -28,20 +57,25 @@ import CNN_Autoencoder as CAE
 from training import train_model, val_model
 from encode_samples import encode_samples
 from density_n_recon_error import calc_density_and_recon_error
-#import Kernel_density_estimate as KDE
+from Outlier_detector import check_outlier
+from helper_function import imshow
+
 
 ############################## Constructors ##################################
-params = pr.Paramaters(batch_size=512) # Construct Paramaters
+# Construct Paramaters
+params = pr.Paramaters(batch_size=64) 
 
-test_images = ig.get_test_set()
-filename = '../training'
-traingen, valgen = ig.train_dataLoader(filename)  # Construct ImageGenerator
-
-loss_fn = torch.nn.MSELoss()
-
+# File path
+filename = '../training' 
+# Construct ImageGenerator
+traingen, valgen  = ig.train_dataLoader(filename, params)  
+# Mean-square error loss function
+loss_fn = torch.nn.MSELoss() 
+# CAE models
 encoder = CAE.Encoder()
 decoder = CAE.Decoder()
     
+# Optimiser
 param_to_optimise = [
     {'params': encoder.parameters()},
     {'params': decoder.parameters()}]
@@ -58,16 +92,10 @@ device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cp
 # Move both the encoder and the decoder to the selected device
 #model.to(device)
 
-##################### helper function ###########################
-def imshow(img):
-    # helper function to un-normalize and display an image
-    img = img / 2 + 0.5  # unnormalize
-    plt.imshow(np.transpose(img, (1, 2, 0)))  # convert from Tensor image
-    
 
 ########################### plot images function ########################################
 def plot_outputs(encoder, decoder):
-    """Plots after every epoch"""
+    """Plots after final epoch"""
     #obtain one batch of test images
     dataiter = iter(valgen)
     images, _ = next(dataiter)
@@ -78,9 +106,6 @@ def plot_outputs(encoder, decoder):
     # prep images for display
     images = images.numpy()
     
-    
-    # output is resized into a batch of iages
-    #output = output.view(params.get_batch_size(), 3, 128, 128)
     # use detach when it's an output that requires_grad
     output = output.detach().numpy()
     
@@ -99,8 +124,12 @@ def plot_outputs(encoder, decoder):
         ax.set_title("Original images")  
 
 ########################### Train and evaluate ########################################
-
-num_epochs = 25
+""" 
+Uses train_model() and val_model from training.py
+loops over num of epochs using training_model() to update weights returns mean loss.
+Val_model just returns mean loss
+"""
+num_epochs = 1000
 diz_loss = {'train_loss':[], 'val_loss': []}
 
 for epoch in range(num_epochs):
@@ -111,14 +140,12 @@ for epoch in range(num_epochs):
    diz_loss['val_loss'].append(val_loss)
 plot_outputs(encoder, decoder)
     
-#plot the training and loss at each epoch
-
+#plot the training and validation loss at each epoch
 plt.figure(figsize=(10,8))
 plt.semilogy(diz_loss['train_loss'], label='Train')
 plt.semilogy(diz_loss['val_loss'], label='Valid')
 plt.xlabel('Epoch')
 plt.ylabel('Average Loss')
-#plt.grid()
 plt.legend()
 plt.title('Training loss')
 plt.show()
@@ -135,50 +162,49 @@ model = torch.load(PATH)
 model.eval()
  """   
 ########################### KDE ########################################
-train_batch = next(iter(traingen))
-encoded_df = encode_samples(encoder, traingen)
-encoded_samples = encoded_df.to_numpy()
 
-#encoded_img_vector = [np.reshape(img, (256)) for img in encoded_samples]
+# Encodes training data
+encoded_samples = encode_samples(encoder, traingen)
 
 #Fit KDE to the image latent data
 kde = KernelDensity(kernel='gaussian', bandwidth=0.2).fit(encoded_samples)
 
-#Get average and std dev. of density and recon. error for uninfected and anomaly (parasited) images. 
-#For this let us generate a batch of images for each. 
-sample_batch = next(iter(valgen))
-
-
+# retreives one batch to calculate pdf for that batch based on KDE
+train_batch = next(iter(traingen)) 
+#Get average and std dev. of density and recon 
 batch_pdf = calc_density_and_recon_error(encoder, decoder, train_batch, kde, loss_fn)
 
 ######################### Outlier detection ###################################
 
-#Now, input unknown images and sort as Good or Anomaly
-def check_anomaly(test_images):
-    density_threshold = 2500 #Set this value based on the above exercise
-    reconstruction_error_threshold = 0.004 # Set this value based on the above exercise
-    img  = Image.open(test_images)
-    img = np.array(img.resize((128,128), Image.ANTIALIAS))
-    plt.imshow(img)
-    img = img / 255.
-    img = img[np.newaxis, :,:,:]
-    encoded_img = encoder.predict([[img]]) 
-    encoded_img = [np.reshape(img, (4,8,8)) for img in encoded_img] 
-    density = kde.score_samples(encoded_img)[0] 
+#For this let us generate a batch of images for each. 
+sample_batch = next(iter(valgen)) # retreives one batch
+# encode that one batch for testing for outliers
+encoded_sample_batch = encode_samples(encoder, valgen)
 
-    reconstruction = decoder.predict([[img]])
-    reconstruction_error = decoder.evaluate([reconstruction],[[img]], batch_size = 1)[0]
+# create empty array tlier classifing
+non_outlier=[]
+outlier=[]
 
-    if density < density_threshold or reconstruction_error > reconstruction_error_threshold:
-        print("The image is an anomaly")
+# Loop through sample batch classifying each image as outlier or not
+for im in range(0, sample_batch[1].size(dim=0)-1):
+    
+    img  = sample_batch[0][im,:,:,:]
+    
+    result = check_outlier(img, encoder, decoder, kde, batch_pdf, loss_fn)
+    if result == 1: 
+        outlier.append(img)
+    else: non_outlier.append(img)
         
-    else:
-        print("The image is NOT an anomaly")
-        
-        
+# Plot outlier images
+fig, axarr = plt.subplots(nrows=2, ncols=2, sharex=True, sharey=True, figsize=(4,4))
+for idx in range(len(outlier)):
+    ax = fig.add_subplot(2, len(outlier)/2, idx+1, xticks=[], yticks=[])
+    imshow(outlier[idx])
+    ax.set_title("outlier images") 
 ########################## Plot final scatter ###############################   
-## TODO with anomolay     
+# Plot final 
 fig, ax = plt.subplots(figsize=(8,8))
-ax.scatter(encoded_df[0], encoded_df[1])
+ax.scatter(encoded_sample_batch[0], encoded_sample_batch[1])
+ax.set_title('sample batch')
 plt.show()        
         

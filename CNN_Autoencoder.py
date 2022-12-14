@@ -2,13 +2,21 @@
 # -*- coding: utf-8 -*-
 """
 CNN Autoencoder Class
-
+Creates an encoder class
+creates a decoder class
+Example:
+    # Construction
+    encoder = Encoder()
+    decoder = Decoder()
+    
+    # using both together
+    encoded = encoder(x)
+    decoded = decoder(encoded)
 
 Created on Mon Nov 14 09:39:52 2022
-Tested: TODO
-Last commited: 
 
-Source: https://github.com/patrickloeber/pytorch-examples/blob/master/Autoencoder.ipynb
+Last commited: 13/12/22
+
 @author: Ross Erskine ppxre1
 """
 
