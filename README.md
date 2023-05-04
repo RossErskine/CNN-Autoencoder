@@ -1,4 +1,4 @@
-# Convolutional Autoencoder for detecting outlier in the Sloane Digital Sky Survey
+# Convolutional Autoencoder for detecting outlier in the Sloan Digital Sky Survey
 
 
 
