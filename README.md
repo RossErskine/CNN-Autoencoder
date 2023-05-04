@@ -1,8 +1,8 @@
-# Scientific Programming in Python – submission 3
+# Convolutional Autoencoder for detecting outlier in the Sloane Digital Sky Survey
 
-### Project title: [Convolutional Autoencoder for detecting outlier in the Sloane Digital Sky Survey]
 
-### Student name: [Ross Erskine ppxre1]
+
+### Ross Erskine
   
 ## Introduction
 The Sloan Digital Sky Survey (SDSS) is a international collaboration that has mappped up-to one-third of the night sky with over three million observations  of Galaxies, Stars,and Quasars with multi-colour imagary, over the last 20 years. With the next phase SDSS-V on the horizon with the next data release in December 2022, researchers will want to exlore more and more data. The discovery of outliers proposes new opportunities in exploring unknown phenomena and can produce some of the weirdest Galaxies in the universe , helping us understand more and more about what can possibly be out there. Convolution autoencoder (CAE) architecture is generally used as a dimensionality reduction technique or feature learning. Although can also be used as a unsupervised method that can be trained to encode input features into smaller dimensional space, then reconstruct the features in to a reduced dimensional space, allowing us to measure discrepancies from the original and identify outliers.
